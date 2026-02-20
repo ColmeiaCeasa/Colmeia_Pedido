@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PEDIDO COLMEIA V4.8 - VISUAL AJUSTADO</title>
+    <title>PEDIDO COLMEIA V4.9 - BUSCA TURBO</title>
     <style>
         :root { 
             --cor-destaque: #007bff;
@@ -24,26 +24,23 @@
         .campo-dados { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #444; font-size: 0.9em; }
 
-        /* --- AJUSTE DOS CAMPOS DE ENTRADA --- */
-        input[type="text"], 
-        input[type="date"], 
-        select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 16px; 
-            font-family: inherit; 
-            background-color: white !important; /* Força o fundo branco */
-            color: #333;
-            -webkit-appearance: none; /* Remove estilo padrão do iPhone */
-            appearance: none;
-            min-height: 48px; /* Padroniza a altura */
+        input[type="text"], input[type="date"], select { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; 
+            font-size: 16px; font-family: inherit; background-color: white !important; color: #333;
+            -webkit-appearance: none; appearance: none; min-height: 48px;
         }
 
         .sticky-header { position: sticky; top: 0; z-index: 100; background: white; padding: 10px 0; border-bottom: 1px solid #eee; }
-        #busca { border: 2px solid var(--cor-destaque); background-color: #f9f9f9; }
+        
+        /* --- AJUSTE DA BUSCA COM BOTÃO LIMPAR --- */
+        .busca-wrapper { position: relative; width: 100%; margin-bottom: 5px; }
+        #busca { border: 2px solid var(--cor-destaque); background-color: #f9f9f9; padding-right: 45px; }
+        .btn-limpar-texto { 
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%); 
+            background: #ccc; color: white; border: none; border-radius: 50%; 
+            width: 22px; height: 22px; font-size: 14px; cursor: pointer; 
+            display: none; align-items: center; justify-content: center; font-weight: bold;
+        }
 
         .categoria-titulo { 
             background: var(--cor-sucesso-claro); color: var(--cor-primaria); padding: 14px 15px; border-radius: 8px; 
@@ -70,10 +67,9 @@
         .badge-tipo { background: var(--cor-primaria); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
         
         .preco-principal { color: var(--cor-destaque); font-weight: bold; font-size: 1.15em; }
-        .em-oferta .preco-principal { color: #d9480f; } 
         .preco-secundario { color: #777; font-size: 0.85em; display: block; margin-top: 2px; font-style: italic; }
 
-        input[type="number"] { width: 65px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 16px; font-weight: bold; color: var(--cor-primaria); background: white; -webkit-appearance: none;}
+        input[type="number"] { width: 65px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 16px; font-weight: bold; color: var(--cor-primaria); background: white; }
         input[type="number"]:disabled { border-color: #ccc; background: #eee; color: #999; cursor: not-allowed; }
 
         .rodape-fixo {
@@ -138,7 +134,10 @@
     <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 
     <div class="sticky-header">
-        <input type="text" id="busca" placeholder="🔎 Buscar por nome ou código..." onkeyup="filtrarProdutos()">
+        <div class="busca-wrapper">
+            <input type="text" id="busca" placeholder="🔎 Buscar por nome ou código..." onkeyup="filtrarProdutos()">
+            <button class="btn-limpar-texto" id="btn-x" onclick="limparTextoBusca()">✕</button>
+        </div>
         <button class="btn-limpar" onclick="limparPedido()">🧹 LIMPAR QUANTIDADES</button>
     </div>
 
@@ -199,14 +198,12 @@
             linhas.forEach(colunas => {
                 if (colunas.length < 3 || !colunas[2]) return;
                 const clean = (val) => (val || "").replace(/"/g, '').trim();
-                
                 const categoria = clean(colunas[0]);
                 const codigo = clean(colunas[1]);
                 const nome = clean(colunas[2]);
                 const preco = parseFloat(clean(colunas[3]).replace(',', '.')) || 0;
                 const tipo = clean(colunas[5]).toLowerCase() || 'un';
                 const precoKg = clean(colunas[6]) || '0,00';
-                
                 const disponivel = colunas[7] ? (clean(colunas[7]).toLowerCase() === 'sim') : true;
                 const oferta = colunas[8] ? (clean(colunas[8]).toLowerCase() === 'sim') : false;
 
@@ -224,127 +221,4 @@
                                     <small class="cod-prod">#${codigo}</small> ${nome} 
                                     <span class="badge-tipo">${tipo}</span>
                                     ${oferta && disponivel ? '<span class="badge-oferta">OFERTA 🔥</span>' : ''}
-                                    ${!disponivel ? '<span class="badge-falta">EM FALTA</span>' : ''}
-                                </span>
-                                <span class="preco-principal">R$ ${preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
-                                <span class="preco-secundario">R$ ${precoKg} por ${(tipo === 'un' ? 'un' : 'Kg')}</span>
-                            </div>
-                            <input type="number" min="0" value="0" 
-                                ${!disponivel ? 'disabled placeholder="X"' : ''}
-                                data-nome-real="${nome}" data-preco="${preco}" data-tipo="${tipo}" data-cod-ref="${codigo}" oninput="atualizarEstado(this)">
-                        </div>
-                    </div>`;
-            });
-            container.innerHTML = htmlGeral + (catAtual !== "" ? "</div>" : "");
-        } catch (e) { 
-            console.error(e);
-            container.innerHTML = "⚠️ Erro ao carregar dados da planilha."; 
-        } finally { 
-            loader.style.display = 'none'; 
-        }
-    }
-
-    function toggleCategoria(el) {
-        el.classList.toggle('fechada');
-        el.nextElementSibling.classList.toggle('escondido');
-    }
-
-    function toggleEndereco() {
-        const tipo = document.getElementById('tipo-entrega').value;
-        document.getElementById('campo-endereco').style.display = (tipo === 'Ceasa') ? 'none' : 'block';
-    }
-
-    function atualizarEstado(input) {
-        const prod = document.getElementById(`prod-${input.getAttribute('data-cod-ref')}`);
-        if(prod) prod.classList.toggle('selecionado', parseFloat(input.value) > 0);
-        calcularTotal();
-    }
-
-    function limparPedido() {
-        if(confirm("Zerar todas as quantidades?")) {
-            document.querySelectorAll('.produto input[type="number"]').forEach(input => {
-                input.value = 0;
-                atualizarEstado(input);
-            });
-        }
-    }
-
-    function filtrarProdutos() {
-        const termo = document.getElementById('busca').value.toLowerCase();
-        document.querySelectorAll('.produto').forEach(p => {
-            const match = p.getAttribute('data-nome').includes(termo) || p.getAttribute('data-codigo').includes(termo);
-            p.style.display = match ? 'flex' : 'none';
-        });
-        document.querySelectorAll('.categoria-titulo').forEach(c => {
-            const corpo = c.nextElementSibling;
-            let tem = false;
-            corpo.querySelectorAll('.produto').forEach(prod => { if(prod.style.display !== 'none') tem = true; });
-            c.style.display = tem ? 'flex' : 'none';
-            if(tem && termo !== "") { c.classList.remove('fechada'); corpo.classList.remove('escondido'); }
-            else if (termo === "") { c.classList.add('fechada'); corpo.classList.add('escondido'); }
-        });
-    }
-
-    function calcularTotal() {
-        let total = 0, qtd = 0;
-        document.querySelectorAll('.produto input[type="number"]').forEach(i => {
-            const v = parseFloat(i.value) || 0;
-            if(v > 0) { total += (parseFloat(i.getAttribute('data-preco')) || 0) * v; qtd++; }
-        });
-        document.getElementById('valor-total').innerText = total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-        document.getElementById('qtd-itens').innerText = qtd;
-    }
-
-    function revisarPedido() {
-        const nome = document.getElementById('cliente-nome').value;
-        if (!nome) { alert("Digite seu nome!"); return; }
-        localStorage.setItem('cliente-nome', nome);
-        localStorage.setItem('cliente-endereco', document.getElementById('cliente-endereco').value);
-
-        let html = "", total = 0, tem = false;
-        document.querySelectorAll('.produto').forEach(p => {
-            const i = p.querySelector('input[type="number"]');
-            const v = parseFloat(i.value) || 0;
-            if (v > 0) {
-                tem = true;
-                const pUnit = parseFloat(i.getAttribute('data-preco'));
-                const sub = v * pUnit;
-                total += sub;
-                html += `<div style="border-bottom: 1px dashed #eee; padding: 5px 0;"><b>${v}${i.getAttribute('data-tipo')}</b> - ${i.getAttribute('data-nome-real')}<br><small>Un: R$ ${pUnit.toLocaleString('pt-BR', {minimumFractionDigits:2})} | Sub: R$ ${sub.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</small></div>`;
-            }
-        });
-        if (!tem) { alert("Pedido vazio!"); return; }
-        document.getElementById('resumo-pedido').innerHTML = html;
-        document.getElementById('resumo-total').innerText = `TOTAL: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-        document.getElementById('modal-revisao').style.display = 'block';
-    }
-
-    function fecharModal() { document.getElementById('modal-revisao').style.display = 'none'; }
-
-    function confirmarEEnviar() {
-        const fone = document.getElementById('vendedor-selecionado').value;
-        const nome = document.getElementById('cliente-nome').value;
-        const tipoEntrega = document.getElementById('tipo-entrega').value;
-        const data = document.getElementById('data-pedido').value.split('-').reverse().join('/');
-        let msg = `*NOVO PEDIDO - COLMÉIA* 📝\n👤 *Cliente:* ${nome}\n📅 *Data:* ${data}\n🚚 *Tipo:* ${tipoEntrega}\n`;
-        if (tipoEntrega === "Entrega") msg += `📍 *End:* ${document.getElementById('cliente-endereco').value}\n`;
-        msg += `\n*ÍTENS DO PEDIDO:* \n\n`;
-
-        document.querySelectorAll('.produto').forEach(p => {
-            const i = p.querySelector('input[type="number"]');
-            const v = parseFloat(i.value) || 0;
-            if (v > 0) {
-                const pUnit = parseFloat(i.getAttribute('data-preco'));
-                const sub = v * pUnit;
-                msg += `▪️ *${v}${i.getAttribute('data-tipo')}* - ${i.getAttribute('data-nome-real')} (R$ ${pUnit.toLocaleString('pt-BR', {minimumFractionDigits: 2})})\n`;
-                msg += `   Sub: R$ ${sub.toLocaleString('pt-BR', {minimumFractionDigits: 2})}\n`;
-                msg += `\n`;
-            }
-        });
-        msg += `💰 *TOTAL: R$ ${document.getElementById('valor-total').innerText}*`;
-        window.open(`https://wa.me/${fone}?text=${encodeURIComponent(msg)}`, '_blank');
-        fecharModal();
-    }
-</script>
-</body>
-</html>
+                                    ${!disponivel ? '<span class="badge-falta
