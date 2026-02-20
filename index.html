@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PEDIDO COLMEIA V4.6</title>
+    <title>PEDIDO COLMEIA V4.7 - MODO OFERTA</title>
     <style>
         :root { 
             --cor-destaque: #007bff;
             --cor-primaria: #004085;
             --cor-fundo: #f4f7f9;
             --cor-perigo: #ff4d4d;
+            --cor-sucesso: #28a745;
+            --cor-oferta: #ffc107; /* Amarelo/Dourado para oferta */
             --cor-sucesso-claro: #e7f1ff;
             --cor-indisponivel: #999;
         }
@@ -38,10 +40,13 @@
         .categoria-corpo { display: block; }
         .categoria-corpo.escondido { display: none; }
 
-        .produto { display: flex; flex-direction: column; padding: 15px 10px; border-bottom: 1px solid #eee; transition: 0.3s; border-radius: 8px; }
+        .produto { display: flex; flex-direction: column; padding: 15px 10px; border-bottom: 1px solid #eee; transition: 0.3s; border-radius: 8px; position: relative; }
         .produto.selecionado { background-color: #f0f7ff; border-left: 4px solid var(--cor-destaque); }
         
-        /* Estilo para produto em falta */
+        /* ESTILO PARA PRODUTO EM OFERTA */
+        .produto.em-oferta { background-color: #fffef0; border-left: 4px solid var(--cor-oferta); }
+        .badge-oferta { background: var(--cor-oferta); color: #856404; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; font-weight: bold; border: 1px solid #ffeeba; }
+
         .produto.em-falta { opacity: 0.6; background-color: #f9f9f9; border-left: 4px solid var(--cor-indisponivel); }
         .badge-falta { background: var(--cor-perigo); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; font-weight: bold; }
 
@@ -52,6 +57,8 @@
         .badge-tipo { background: var(--cor-primaria); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
         
         .preco-principal { color: var(--cor-destaque); font-weight: bold; font-size: 1.15em; }
+        /* Preço da oferta em cor diferente */
+        .em-oferta .preco-principal { color: #d9480f; } 
         .preco-secundario { color: #777; font-size: 0.85em; display: block; margin-top: 2px; font-style: italic; }
 
         input[type="number"] { width: 65px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 16px; font-weight: bold; color: var(--cor-primaria); }
@@ -60,7 +67,6 @@
         .rodape-fixo {
             position: fixed; bottom: 0; left: 0; width: 100%; background: var(--cor-primaria); padding: 15px; box-sizing: border-box; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); z-index: 1000; display: flex; flex-direction: column; gap: 10px; border-radius: 20px 20px 0 0;
         }
-
         .total-info { display: flex; justify-content: space-between; align-items: center; color: white; }
         .total-valor { font-size: 1.4em; font-weight: bold; }
         .btn-enviar { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 0 #0056b3; }
@@ -88,7 +94,7 @@
     </div>
 
     <div class="campo-dados">
-        <label>Selecione o Vendedor:</label>
+        <label>Vendedor:</label>
         <select id="vendedor-selecionado">
             <option value="5516991251990">Vendedor Leandro</option>
             <option value="5516981910138">Vendedor Marco</option>
@@ -189,8 +195,9 @@
                 const tipo = clean(colunas[5]).toLowerCase() || 'un';
                 const precoKg = clean(colunas[6]) || '0,00';
                 
-                // NOVO: Verifica disponibilidade na Coluna H (index 7)
                 const disponivel = (clean(colunas[7]).toLowerCase() === 'sim');
+                // NOVO: Lê a Coluna I (index 8) para saber se é oferta
+                const oferta = (clean(colunas[8]).toLowerCase() === 'sim');
 
                 if (categoria.toLowerCase() !== catAtual.toLowerCase() && categoria !== "") {
                     if (catAtual !== "") htmlGeral += `</div>`; 
@@ -199,12 +206,13 @@
                 }
 
                 htmlGeral += `
-                    <div class="produto ${!disponivel ? 'em-falta' : ''}" id="prod-${codigo}" data-codigo="${codigo.toLowerCase()}" data-nome="${nome.toLowerCase()}">
+                    <div class="produto ${!disponivel ? 'em-falta' : ''} ${oferta ? 'em-oferta' : ''}" id="prod-${codigo}" data-codigo="${codigo.toLowerCase()}" data-nome="${nome.toLowerCase()}">
                         <div class="produto-header">
                             <div class="info">
                                 <span class="nome-prod">
                                     <small class="cod-prod">#${codigo}</small> ${nome} 
                                     <span class="badge-tipo">${tipo}</span>
+                                    ${oferta && disponivel ? '<span class="badge-oferta">OFERTA 🔥</span>' : ''}
                                     ${!disponivel ? '<span class="badge-falta">EM FALTA</span>' : ''}
                                 </span>
                                 <span class="preco-principal">R$ ${preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
@@ -292,36 +300,3 @@
         });
         if (!tem) { alert("Pedido vazio!"); return; }
         document.getElementById('resumo-pedido').innerHTML = html;
-        document.getElementById('resumo-total').innerText = `TOTAL: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-        document.getElementById('modal-revisao').style.display = 'block';
-    }
-
-    function fecharModal() { document.getElementById('modal-revisao').style.display = 'none'; }
-
-    function confirmarEEnviar() {
-        const fone = document.getElementById('vendedor-selecionado').value;
-        const nome = document.getElementById('cliente-nome').value;
-        const tipoEntrega = document.getElementById('tipo-entrega').value;
-        const data = document.getElementById('data-pedido').value.split('-').reverse().join('/');
-        let msg = `*NOVO PEDIDO - COLMÉIA* 📝\n👤 *Cliente:* ${nome}\n📅 *Data:* ${data}\n🚚 *Tipo:* ${tipoEntrega}\n`;
-        if (tipoEntrega === "Entrega") msg += `📍 *End:* ${document.getElementById('cliente-endereco').value}\n`;
-        msg += `\n*ÍTENS DO PEDIDO:* \n\n`;
-
-        document.querySelectorAll('.produto').forEach(p => {
-            const i = p.querySelector('input[type="number"]');
-            const v = parseFloat(i.value) || 0;
-            if (v > 0) {
-                const pUnit = parseFloat(i.getAttribute('data-preco'));
-                const sub = v * pUnit;
-                msg += `▪️ *${v}${i.getAttribute('data-tipo')}* - ${i.getAttribute('data-nome-real')} (R$ ${pUnit.toLocaleString('pt-BR', {minimumFractionDigits: 2})})\n`;
-                msg += `   Sub: R$ ${sub.toLocaleString('pt-BR', {minimumFractionDigits: 2})}\n`;
-                msg += `\n`;
-            }
-        });
-        msg += `💰 *TOTAL: R$ ${document.getElementById('valor-total').innerText}*`;
-        window.open(`https://wa.me/${fone}?text=${encodeURIComponent(msg)}`, '_blank');
-        fecharModal();
-    }
-</script>
-</body>
-</html>
