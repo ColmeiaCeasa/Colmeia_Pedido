@@ -2,8 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PEDIDO COLMEIA V5.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEDIDO COLMEIA V4.8 - VISUAL AJUSTADO</title>
     <style>
         :root { 
             --cor-destaque: #007bff;
@@ -24,23 +24,35 @@
         .campo-dados { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #444; font-size: 0.9em; }
 
-        input[type="text"], input[type="date"], select { 
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; 
-            font-size: 16px; font-family: inherit; background-color: white !important; color: #333;
-            -webkit-appearance: none; appearance: none; min-height: 48px;
+        input[type="text"], 
+        input[type="date"], 
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            font-family: inherit; 
+            background-color: white !important;
+            color: #333;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 48px;
         }
 
         .sticky-header { position: sticky; top: 0; z-index: 100; background: white; padding: 10px 0; border-bottom: 1px solid #eee; }
         
-        /* Busca com Botão X */
+        /* --- ESTILO BUSCA COM BOTÃO X --- */
         .busca-wrapper { position: relative; width: 100%; margin-bottom: 8px; }
         #busca { border: 2px solid var(--cor-destaque); background-color: #f9f9f9; padding-right: 40px; }
-        .btn-limpar-texto { 
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
-            background: #ccc; color: white; border: none; border-radius: 50%; 
-            width: 24px; height: 24px; font-size: 14px; cursor: pointer; 
-            display: none; align-items: center; justify-content: center; font-weight: bold;
+        
+        #btn-limpar-busca {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            border: none; background: none; font-size: 24px; color: #999;
+            cursor: pointer; display: none; padding: 0; line-height: 1;
         }
+        #btn-limpar-busca:hover { color: var(--cor-perigo); }
 
         .categoria-titulo { 
             background: var(--cor-sucesso-claro); color: var(--cor-primaria); padding: 14px 15px; border-radius: 8px; 
@@ -55,40 +67,55 @@
 
         .produto { display: flex; flex-direction: column; padding: 15px 10px; border-bottom: 1px solid #eee; transition: 0.3s; border-radius: 8px; }
         .produto.selecionado { background-color: #f0f7ff; border-left: 4px solid var(--cor-destaque); }
-        
-        .produto-header { display: flex; justify-content: space-between; align-items: center; }
-        .info { flex: 1; padding-right: 10px; }
-        .nome-prod { font-weight: bold; color: #333; display: block; font-size: 1.05em;}
-        .preco-principal { color: var(--cor-destaque); font-weight: bold; font-size: 1.15em; }
-        
-        .badge-oferta { background: var(--cor-oferta); color: #856404; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .badge-falta { background: var(--cor-perigo); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .produto.em-oferta { background-color: #fffef0; border-left: 4px solid var(--cor-oferta); }
+        .badge-oferta { background: var(--cor-oferta); color: #856404; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; font-weight: bold; }
+        .produto.em-falta { opacity: 0.6; background-color: #f9f9f9; border-left: 4px solid var(--cor-indisponivel); }
+        .badge-falta { background: var(--cor-perigo); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; font-weight: bold; }
 
-        input[type="number"] { width: 75px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 18px; font-weight: bold; }
+        .produto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .info { flex: 1; padding-right: 10px; }
+        .cod-prod { background: #eee; color: #666; font-size: 0.7em; padding: 2px 5px; border-radius: 4px; margin-right: 4px; }
+        .nome-prod { font-weight: bold; color: #333; display: block; margin-bottom: 4px; font-size: 1.05em;}
+        .badge-tipo { background: var(--cor-primaria); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
+        
+        .preco-principal { color: var(--cor-destaque); font-weight: bold; font-size: 1.15em; }
+        .em-oferta .preco-principal { color: #d9480f; } 
+        .preco-secundario { color: #777; font-size: 0.85em; display: block; margin-top: 2px; font-style: italic; }
+
+        input[type="number"] { width: 65px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 16px; font-weight: bold; color: var(--cor-primaria); background: white; -webkit-appearance: none;}
+        input[type="number"]:disabled { border-color: #ccc; background: #eee; color: #999; cursor: not-allowed; }
 
         .rodape-fixo {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: var(--cor-primaria); padding: 15px; box-sizing: border-box; z-index: 1000; display: flex; flex-direction: column; gap: 10px; border-radius: 20px 20px 0 0;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: var(--cor-primaria); padding: 15px; box-sizing: border-box; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); z-index: 1000; display: flex; flex-direction: column; gap: 10px; border-radius: 20px 20px 0 0;
         }
-        .btn-enviar { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .total-info { display: flex; justify-content: space-between; align-items: center; color: white; }
+        .total-valor { font-size: 1.4em; font-weight: bold; }
+        .btn-enviar { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 0 #0056b3; }
         
+        #btn-topo { display: none; position: fixed; bottom: 160px; right: 20px; z-index: 99; background: var(--cor-primaria); color: white; border-radius: 50%; width: 45px; height: 45px; border: none; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 450px; border-radius: 15px; max-height: 85vh; overflow-y: auto; box-sizing: border-box;}
+        
+        .btn-limpar { background-color: var(--cor-perigo); box-shadow: 0 4px 0 #b30000; padding: 10px; font-size: 0.8em; margin-top: 5px; border-radius: 8px; color: white; border: none; width: 100%; font-weight: bold;}
         #carregando { text-align: center; color: #666; padding: 30px; font-weight: bold; }
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
-        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 90%; max-width: 400px; border-radius: 15px; }
     </style>
 </head>
 <body>
 
+<button id="btn-topo" onclick="irAoTopo()">⬆</button>
+
 <div class="container">
-    <img src="https://i.postimg.cc/Mp43sV46/LOGO-COLMEIA.png" alt="Logo" class="logo-empresa">
+    <img src="https://i.postimg.cc/Mp43sV46/LOGO-COLMEIA.png" alt="Logo da Empresa" class="logo-empresa">
     <h1>🛒 PEDIDO COLMÉIA</h1>
 
     <div class="campo-dados">
-        <label>Nome do Cliente:</label>
-        <input type="text" id="cliente-nome" placeholder="Seu nome...">
+        <label>Seu Nome ou Mercado:</label>
+        <input type="text" id="cliente-nome" placeholder="Digite aqui...">
     </div>
 
     <div class="campo-dados">
-        <label>Vendedor:</label>
+        <label>Vendedor Responsável:</label>
         <select id="vendedor-selecionado">
             <option value="5516991251990">Vendedor Leandro</option>
             <option value="5516981910138">Vendedor Marco</option>
@@ -100,16 +127,31 @@
     </div>
 
     <div class="campo-dados">
-        <label>Data:</label>
+        <label>Forma de Recebimento:</label>
+        <select id="tipo-entrega" onchange="toggleEndereco()">
+            <option value="Entrega">Receber na loja (Entrega)</option>
+            <option value="Ceasa">Retirar no Ceasa</option>
+        </select>
+    </div>
+
+    <div class="campo-dados">
+        <label>Data da Entrega/Retirada:</label>
         <input type="date" id="data-pedido">
     </div>
 
+    <div class="campo-dados" id="campo-endereco">
+        <label>Endereço Completo:</label>
+        <input type="text" id="cliente-endereco" placeholder="Rua, número, bairro...">
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
     <div class="sticky-header">
         <div class="busca-wrapper">
-            <input type="text" id="busca" placeholder="🔎 Buscar produto..." onkeyup="filtrarProdutos()">
-            <button class="btn-limpar-texto" id="btn-x" onclick="limparTextoBusca()">✕</button>
+            <input type="text" id="busca" placeholder="🔎 Buscar por nome ou código..." onkeyup="filtrarProdutos()">
+            <button id="btn-limpar-busca" onclick="limparBusca()">&times;</button>
         </div>
-        <button onclick="limparPedido()" style="width: 100%; background: #ff4d4d; color: white; border: none; padding: 8px; border-radius: 5px; font-weight: bold;">🧹 ZERAR QTDs</button>
+        <button class="btn-limpar" onclick="limparPedido()">🧹 LIMPAR QUANTIDADES</button>
     </div>
 
     <div id="carregando">⏳ Sincronizando produtos...</div>
@@ -117,38 +159,44 @@
 </div>
 
 <div class="rodape-fixo">
-    <div style="display: flex; justify-content: space-between; color: white; font-weight: bold;">
-        <span>Itens: <span id="qtd-itens">0</span></span>
-        <span>Total: R$ <span id="valor-total">0,00</span></span>
+    <div class="total-info">
+        <span class="total-itens"><span id="qtd-itens">0</span> itens selecionados</span>
+        <span class="total-valor">R$ <span id="valor-total">0,00</span></span>
     </div>
     <button class="btn-enviar" onclick="revisarPedido()">🚀 REVISAR E ENVIAR</button>
 </div>
 
 <div id="modal-revisao" class="modal">
     <div class="modal-content">
-        <h3>Revisar Pedido</h3>
-        <div id="resumo-pedido" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;"></div>
-        <button class="btn-enviar" onclick="confirmarEEnviar()">✅ TUDO CERTO, ENVIAR</button>
-        <button onclick="fecharModal()" style="width: 100%; margin-top: 10px; background: #888; color: white; border: none; padding: 10px; border-radius: 10px;">Voltar</button>
+        <h2 style="color: var(--cor-primaria);">Conferir Pedido</h2>
+        <div id="resumo-pedido"></div>
+        <div id="resumo-total" style="font-weight: bold; font-size: 1.2em; margin: 15px 0; text-align: right; color: var(--cor-destaque);"></div>
+        <button class="btn-enviar" onclick="confirmarEEnviar()">✅ ENVIAR AGORA</button>
+        <button onclick="fecharModal()" style="background: #888; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; margin-top: 10px; font-weight: bold;">❌ CORRIGIR</button>
     </div>
 </div>
 
 <script>
     const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_P984gdvjs0uVTJWfTs9qwv6KIhbrtQCak0PW_LMnPDJ58JtzPy09jzVp1wzCPtTO1QvQ6hYApVsf/pub?gid=0&single=true&output=csv';
 
-    // Se em 8 segundos não carregar, ele força a saída da tela de loading
-    setTimeout(() => {
-        const loader = document.getElementById('carregando');
-        if (loader && loader.style.display !== 'none') {
-            loader.innerHTML = "⚠️ A conexão com a planilha falhou. Tente atualizar a página.";
-        }
-    }, 8000);
-
     window.onload = () => {
+        if(localStorage.getItem('cliente-nome')) document.getElementById('cliente-nome').value = localStorage.getItem('cliente-nome');
+        if(localStorage.getItem('cliente-endereco')) document.getElementById('cliente-endereco').value = localStorage.getItem('cliente-endereco');
         const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('data-pedido').setAttribute('min', hoje);
         document.getElementById('data-pedido').value = hoje;
         carregarProdutos();
     };
+
+    window.onscroll = () => {
+        document.getElementById('btn-topo').style.display = (window.scrollY > 300) ? 'block' : 'none';
+    };
+    function irAoTopo() { window.scrollTo(0,0); }
+
+    function parseCSV(text) {
+        const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+        return text.split(/\r?\n/).map(line => line.split(regex));
+    }
 
     async function carregarProdutos() {
         const container = document.getElementById('lista-produtos');
@@ -156,79 +204,56 @@
         try {
             const resposta = await fetch(urlPlanilha);
             const dadosTexto = await resposta.text();
-            const linhas = dadosTexto.split(/\r?\n/).map(l => l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)).slice(1);
-            
+            const linhas = parseCSV(dadosTexto).slice(1); 
             let catAtual = "";
             let htmlGeral = "";
 
-            linhas.forEach(col => {
-                if (col.length < 3) return;
-                const clean = (v) => v.replace(/"/g, '').trim();
-                const categoria = clean(col[0]);
-                const codigo = clean(col[1]);
-                const nome = clean(col[2]);
-                const preco = parseFloat(clean(col[3]).replace(',', '.')) || 0;
-                const disponivel = col[7] ? clean(col[7]).toLowerCase() === 'sim' : true;
-                const oferta = col[8] ? clean(col[8]).toLowerCase() === 'sim' : false;
+            linhas.forEach(colunas => {
+                if (colunas.length < 3 || !colunas[2]) return;
+                const clean = (val) => (val || "").replace(/"/g, '').trim();
+                
+                const categoria = clean(colunas[0]);
+                const codigo = clean(colunas[1]);
+                const nome = clean(colunas[2]);
+                const preco = parseFloat(clean(colunas[3]).replace(',', '.')) || 0;
+                const tipo = clean(colunas[5]).toLowerCase() || 'un';
+                const precoKg = clean(colunas[6]) || '0,00';
+                
+                const disponivel = colunas[7] ? (clean(colunas[7]).toLowerCase() === 'sim') : true;
+                const oferta = colunas[8] ? (clean(colunas[8]).toLowerCase() === 'sim') : false;
 
-                if (categoria !== catAtual && categoria !== "") {
-                    if (catAtual !== "") htmlGeral += `</div>`;
+                if (categoria.toLowerCase() !== catAtual.toLowerCase() && categoria !== "") {
+                    if (catAtual !== "") htmlGeral += `</div>`; 
                     catAtual = categoria;
                     htmlGeral += `<div class="categoria-titulo fechada" onclick="toggleCategoria(this)">${catAtual}</div><div class="categoria-corpo escondido">`;
                 }
 
                 htmlGeral += `
-                    <div class="produto ${!disponivel?'em-falta':''} ${oferta?'em-oferta':''}" id="prod-${codigo}" data-nome="${nome.toLowerCase()}">
+                    <div class="produto ${!disponivel ? 'em-falta' : ''} ${oferta && disponivel ? 'em-oferta' : ''}" id="prod-${codigo}" data-codigo="${codigo.toLowerCase()}" data-nome="${nome.toLowerCase()}">
                         <div class="produto-header">
                             <div class="info">
-                                <span class="nome-prod">#${codigo} ${nome}</span>
+                                <span class="nome-prod">
+                                    <small class="cod-prod">#${codigo}</small> ${nome} 
+                                    <span class="badge-tipo">${tipo}</span>
+                                    ${oferta && disponivel ? '<span class="badge-oferta">OFERTA 🔥</span>' : ''}
+                                    ${!disponivel ? '<span class="badge-falta">EM FALTA</span>' : ''}
+                                </span>
                                 <span class="preco-principal">R$ ${preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
-                                ${oferta ? '<span class="badge-oferta">OFERTA 🔥</span>' : ''}
-                                ${!disponivel ? '<span class="badge-falta">FALTA</span>' : ''}
+                                <span class="preco-secundario">R$ ${precoKg} por ${(tipo === 'un' ? 'un' : 'Kg')}</span>
                             </div>
-                            <input type="number" inputmode="decimal" min="0" value="0" 
-                                ${!disponivel ? 'disabled' : ''} 
-                                oninput="atualizarEstado(this, '${codigo}', ${preco}, '${nome}')">
+                            <input type="number" min="0" value="0" 
+                                ${!disponivel ? 'disabled placeholder="X"' : ''}
+                                data-nome-real="${nome}" data-preco="${preco}" data-tipo="${tipo}" data-cod-ref="${codigo}" oninput="atualizarEstado(this)">
                         </div>
                     </div>`;
             });
-            container.innerHTML = htmlGeral + "</div>";
-            loader.style.display = 'none';
-        } catch (e) {
-            loader.innerHTML = "⚠️ Erro ao carregar planilha. Verifique sua internet.";
+            container.innerHTML = htmlGeral + (catAtual !== "" ? "</div>" : "");
+        } catch (e) { 
+            console.error(e);
+            container.innerHTML = "⚠️ Erro ao carregar dados da planilha."; 
+        } finally { 
+            loader.style.display = 'none'; 
         }
-    }
-
-    function atualizarEstado(input, cod, preco, nome) {
-        const prod = document.getElementById(`prod-${cod}`);
-        prod.classList.toggle('selecionado', input.value > 0);
-        calcularTotal();
-    }
-
-    function calcularTotal() {
-        let total = 0, qtd = 0;
-        document.querySelectorAll('input[type="number"]').forEach(i => {
-            if (i.value > 0) {
-                const preco = parseFloat(i.parentElement.querySelector('.preco-principal').innerText.replace('R$ ', '').replace('.', '').replace(',', '.'));
-                total += i.value * preco;
-                qtd++;
-            }
-        });
-        document.getElementById('valor-total').innerText = total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-        document.getElementById('qtd-itens').innerText = qtd;
-    }
-
-    function filtrarProdutos() {
-        const termo = document.getElementById('busca').value.toLowerCase();
-        document.getElementById('btn-x').style.display = termo.length > 0 ? 'flex' : 'none';
-        document.querySelectorAll('.produto').forEach(p => {
-            p.style.display = p.getAttribute('data-nome').includes(termo) ? 'flex' : 'none';
-        });
-    }
-
-    function limparTextoBusca() {
-        document.getElementById('busca').value = '';
-        filtrarProdutos();
     }
 
     function toggleCategoria(el) {
@@ -236,18 +261,86 @@
         el.nextElementSibling.classList.toggle('escondido');
     }
 
+    function toggleEndereco() {
+        const tipo = document.getElementById('tipo-entrega').value;
+        document.getElementById('campo-endereco').style.display = (tipo === 'Ceasa') ? 'none' : 'block';
+    }
+
+    function atualizarEstado(input) {
+        const prod = document.getElementById(`prod-${input.getAttribute('data-cod-ref')}`);
+        if(prod) prod.classList.toggle('selecionado', parseFloat(input.value) > 0);
+        calcularTotal();
+    }
+
+    function limparPedido() {
+        if(confirm("Zerar todas as quantidades?")) {
+            document.querySelectorAll('.produto input[type="number"]').forEach(input => {
+                input.value = 0;
+                atualizarEstado(input);
+            });
+        }
+    }
+
+    function filtrarProdutos() {
+        const termo = document.getElementById('busca').value.toLowerCase().trim();
+        const btnLimpar = document.getElementById('btn-limpar-busca');
+        
+        // Mostra ou esconde o botão X
+        btnLimpar.style.display = termo !== "" ? "block" : "none";
+
+        document.querySelectorAll('.produto').forEach(p => {
+            const match = p.getAttribute('data-nome').includes(termo) || p.getAttribute('data-codigo').includes(termo);
+            p.style.display = match ? 'flex' : 'none';
+        });
+
+        document.querySelectorAll('.categoria-titulo').forEach(c => {
+            const corpo = c.nextElementSibling;
+            let tem = false;
+            corpo.querySelectorAll('.produto').forEach(prod => { if(prod.style.display !== 'none') tem = true; });
+            c.style.display = tem ? 'flex' : 'none';
+            if(tem && termo !== "") { c.classList.remove('fechada'); corpo.classList.remove('escondido'); }
+            else if (termo === "") { c.classList.add('fechada'); corpo.classList.add('escondido'); }
+        });
+    }
+
+    function limparBusca() {
+        const buscaInput = document.getElementById('busca');
+        buscaInput.value = "";
+        filtrarProdutos();
+        buscaInput.focus();
+    }
+
+    function calcularTotal() {
+        let total = 0, qtd = 0;
+        document.querySelectorAll('.produto input[type="number"]').forEach(i => {
+            const v = parseFloat(i.value) || 0;
+            if(v > 0) { total += (parseFloat(i.getAttribute('data-preco')) || 0) * v; qtd++; }
+        });
+        document.getElementById('valor-total').innerText = total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        document.getElementById('qtd-itens').innerText = qtd;
+    }
+
     function revisarPedido() {
         const nome = document.getElementById('cliente-nome').value;
-        if (!nome) { alert("Informe seu nome!"); return; }
-        let html = "";
-        document.querySelectorAll('input[type="number"]').forEach(i => {
-            if (i.value > 0) {
-                const nomeProd = i.parentElement.querySelector('.nome-prod').innerText;
-                html += `<p><b>${i.value}x</b> ${nomeProd}</p>`;
+        if (!nome) { alert("Digite seu nome!"); return; }
+        localStorage.setItem('cliente-nome', nome);
+        localStorage.setItem('cliente-endereco', document.getElementById('cliente-endereco').value);
+
+        let html = "", total = 0, tem = false;
+        document.querySelectorAll('.produto').forEach(p => {
+            const i = p.querySelector('input[type="number"]');
+            const v = parseFloat(i.value) || 0;
+            if (v > 0) {
+                tem = true;
+                const pUnit = parseFloat(i.getAttribute('data-preco'));
+                const sub = v * pUnit;
+                total += sub;
+                html += `<div style="border-bottom: 1px dashed #eee; padding: 5px 0;"><b>${v}${i.getAttribute('data-tipo')}</b> - ${i.getAttribute('data-nome-real')}<br><small>Un: R$ ${pUnit.toLocaleString('pt-BR', {minimumFractionDigits:2})} | Sub: R$ ${sub.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</small></div>`;
             }
         });
-        if (!html) { alert("Pedido vazio!"); return; }
+        if (!tem) { alert("Pedido vazio!"); return; }
         document.getElementById('resumo-pedido').innerHTML = html;
+        document.getElementById('resumo-total').innerText = `TOTAL: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
         document.getElementById('modal-revisao').style.display = 'block';
     }
 
@@ -255,15 +348,27 @@
 
     function confirmarEEnviar() {
         const fone = document.getElementById('vendedor-selecionado').value;
-        const msg = "Novo pedido realizado!"; // Simplificado para exemplo
-        window.open(`https://wa.me/${fone}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
+        const nome = document.getElementById('cliente-nome').value;
+        const tipoEntrega = document.getElementById('tipo-entrega').value;
+        const data = document.getElementById('data-pedido').value.split('-').reverse().join('/');
+        let msg = `*NOVO PEDIDO - COLMÉIA* 📝\n👤 *Cliente:* ${nome}\n📅 *Data:* ${data}\n🚚 *Tipo:* ${tipoEntrega}\n`;
+        if (tipoEntrega === "Entrega") msg += `📍 *End:* ${document.getElementById('cliente-endereco').value}\n`;
+        msg += `\n*ÍTENS DO PEDIDO:* \n\n`;
 
-    function limparPedido() {
-        if(confirm("Zerar todas as quantidades?")) {
-            document.querySelectorAll('input[type="number"]').forEach(i => { i.value = 0; });
-            calcularTotal();
-        }
+        document.querySelectorAll('.produto').forEach(p => {
+            const i = p.querySelector('input[type="number"]');
+            const v = parseFloat(i.value) || 0;
+            if (v > 0) {
+                const pUnit = parseFloat(i.getAttribute('data-preco'));
+                const sub = v * pUnit;
+                msg += `▪️ *${v}${i.getAttribute('data-tipo')}* - ${i.getAttribute('data-nome-real')} (R$ ${pUnit.toLocaleString('pt-BR', {minimumFractionDigits: 2})})\n`;
+                msg += `   Sub: R$ ${sub.toLocaleString('pt-BR', {minimumFractionDigits: 2})}\n`;
+                msg += `\n`;
+            }
+        });
+        msg += `💰 *TOTAL: R$ ${document.getElementById('valor-total').innerText}*`;
+        window.open(`https://wa.me/${fone}?text=${encodeURIComponent(msg)}`, '_blank');
+        fecharModal();
     }
 </script>
 </body>
