@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PEDIDO COLMEIA V4.9 - ESTÁVEL</title>
+    <title>PEDIDO COLMEIA V4.8 - MOBILE OK</title>
     <style>
         :root { 
             --cor-destaque: #007bff;
@@ -38,7 +38,7 @@
         .btn-limpar-texto { 
             position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
             background: #ccc; color: white; border: none; border-radius: 50%; 
-            width: 26px; height: 26px; font-size: 14px; cursor: pointer; 
+            width: 24px; height: 24px; font-size: 14px; cursor: pointer; 
             display: none; align-items: center; justify-content: center; font-weight: bold; z-index: 10;
         }
 
@@ -52,7 +52,7 @@
         .categoria-titulo.fechada::after { transform: rotate(-90deg); }
         .categoria-corpo.escondido { display: none; }
 
-        .produto { display: flex; flex-direction: column; padding: 15px 10px; border-bottom: 1px solid #eee; border-radius: 8px; }
+        .produto { display: flex; flex-direction: column; padding: 15px 10px; border-bottom: 1px solid #eee; transition: 0.3s; border-radius: 8px; }
         .produto.selecionado { background-color: #f0f7ff; border-left: 4px solid var(--cor-destaque); }
         .produto.em-oferta { background-color: #fffef0; border-left: 4px solid var(--cor-oferta); }
         
@@ -61,12 +61,12 @@
         .badge-oferta { background: var(--cor-oferta); color: #856404; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
         .badge-falta { background: var(--cor-perigo); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
 
-        input[type="number"] { width: 75px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 18px; font-weight: bold; color: var(--cor-primaria); -webkit-appearance: none; }
+        input[type="number"] { width: 70px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 18px; font-weight: bold; color: var(--cor-primaria); }
 
         .rodape-fixo {
             position: fixed; bottom: 0; left: 0; width: 100%; background: var(--cor-primaria); padding: 15px; box-sizing: border-box; z-index: 1000; border-radius: 20px 20px 0 0;
         }
-        .btn-enviar-wa { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #0056b3; }
+        .btn-enviar-wa { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; font-weight: bold; cursor: pointer; }
         
         #carregando { text-align: center; color: #666; padding: 30px; font-weight: bold; background: white; border-radius: 10px; margin-top: 10px; border: 1px solid #eee; }
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
@@ -97,7 +97,7 @@
     </div>
 
     <div class="campo-dados">
-        <label>Recebimento:</label>
+        <label>Como deseja receber?</label>
         <select id="tipo-entrega" onchange="toggleEndereco()">
             <option value="Entrega">Receber na loja (Entrega)</option>
             <option value="Ceasa">Retirar no Ceasa</option>
@@ -111,7 +111,7 @@
 
     <div class="campo-dados" id="campo-endereco">
         <label>Endereço de Entrega:</label>
-        <input type="text" id="cliente-endereco" placeholder="Rua, nº, bairro...">
+        <input type="text" id="cliente-endereco" placeholder="Endereço completo...">
     </div>
 
     <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
@@ -142,4 +142,163 @@
         <div id="resumo-pedido"></div>
         <div id="resumo-total" style="font-weight:bold; font-size:1.2em; margin:15px 0; text-align:right; color:var(--cor-destaque);"></div>
         <button class="btn-enviar-wa" onclick="enviarWhatsApp()">✅ ENVIAR AGORA</button>
-        <button onclick="fecharModal()" style="background:#888; color:white; border:none; padding:15px; width:10
+        <button onclick="fecharModal()" style="background:#888; color:white; border:none; padding:15px; width:100%; border-radius:10px; margin-top:10px; font-weight:bold;">❌ CORRIGIR</button>
+    </div>
+</div>
+
+<script>
+    const urlPlanilha = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_P984gdvjs0uVTJWfTs9qwv6KIhbrtQCak0PW_LMnPDJ58JtzPy09jzVp1wzCPtTO1QvQ6hYApVsf/pub?gid=0&single=true&output=csv';
+
+    // TRAVA DE SEGURANÇA: Se em 6 segundos não carregar, libera a tela
+    setTimeout(() => {
+        const loader = document.getElementById('carregando');
+        if (loader && loader.style.display !== 'none') {
+            loader.style.display = 'none';
+        }
+    }, 6000);
+
+    window.onload = () => {
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('data-pedido').value = hoje;
+        carregarProdutos();
+    };
+
+    async function carregarProdutos() {
+        const container = document.getElementById('lista-produtos');
+        const loader = document.getElementById('carregando');
+        try {
+            const resposta = await fetch(urlPlanilha);
+            const dadosTexto = await resposta.text();
+            const linhas = dadosTexto.split(/\r?\n/).map(l => l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)).slice(1);
+            
+            let catAtual = "";
+            let htmlGeral = "";
+
+            linhas.forEach(col => {
+                if (col.length < 3 || !col[2]) return;
+                const clean = (v) => v.replace(/"/g, '').trim();
+                const categoria = clean(col[0]);
+                const codigo = clean(col[1]);
+                const nome = clean(col[2]);
+                const preco = parseFloat(clean(col[3]).replace(',', '.')) || 0;
+                const tipo = clean(col[5]) || 'un';
+                const disponivel = col[7] ? clean(col[7]).toLowerCase() === 'sim' : true;
+                const oferta = col[8] ? clean(col[8]).toLowerCase() === 'sim' : false;
+
+                if (categoria !== catAtual && categoria !== "") {
+                    if (catAtual !== "") htmlGeral += `</div>`;
+                    catAtual = categoria;
+                    htmlGeral += `<div class="categoria-titulo fechada" onclick="toggleCategoria(this)">${catAtual}</div><div class="categoria-corpo escondido">`;
+                }
+
+                htmlGeral += `
+                    <div class="produto ${!disponivel?'em-falta':''} ${oferta && disponivel ?'em-oferta':''}" id="prod-${codigo}" data-nome="${nome.toLowerCase()}" data-codigo="${codigo.toLowerCase()}">
+                        <div class="produto-header">
+                            <div class="info">
+                                <span class="nome-prod">#${codigo} ${nome} <span style="font-size:0.7em; color:white; background:#004085; padding:2px 5px; border-radius:4px;">${tipo}</span>
+                                    ${oferta && disponivel ? '<span class="badge-oferta">OFERTA 🔥</span>' : ''}
+                                    ${!disponivel ? '<span class="badge-falta">FALTA</span>' : ''}
+                                </span>
+                                <span class="preco-principal">R$ ${preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <input type="number" inputmode="decimal" min="0" value="0" ${!disponivel ? 'disabled' : ''} 
+                                oninput="atualizarSelecao(this, '${codigo}')" data-preco="${preco}" data-nome="${nome}" data-tipo="${tipo}">
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = htmlGeral + "</div>";
+        } catch (e) { console.error(e); }
+        finally { loader.style.display = 'none'; }
+    }
+
+    function toggleCategoria(el) {
+        el.classList.toggle('fechada');
+        el.nextElementSibling.classList.toggle('escondido');
+    }
+
+    function toggleEndereco() {
+        const tipo = document.getElementById('tipo-entrega').value;
+        document.getElementById('campo-endereco').style.display = (tipo === 'Ceasa') ? 'none' : 'block';
+    }
+
+    function atualizarSelecao(input, codigo) {
+        const prod = document.getElementById(`prod-${codigo}`);
+        if(prod) prod.classList.toggle('selecionado', parseFloat(input.value) > 0);
+        calcularTotal();
+    }
+
+    function filtrarProdutos() {
+        const t = document.getElementById('busca').value.toLowerCase();
+        document.getElementById('btn-x').style.display = t.length > 0 ? 'flex' : 'none';
+        document.querySelectorAll('.produto').forEach(p => {
+            const show = p.getAttribute('data-nome').includes(t) || p.getAttribute('data-codigo').includes(t);
+            p.style.display = show ? 'flex' : 'none';
+        });
+        document.querySelectorAll('.categoria-titulo').forEach(c => {
+            let tem = false;
+            c.nextElementSibling.querySelectorAll('.produto').forEach(p => { if(p.style.display !== 'none') tem = true; });
+            c.style.display = tem ? 'flex' : 'none';
+            if(tem && t !== "") { c.classList.remove('fechada'); c.nextElementSibling.classList.remove('escondido'); }
+        });
+    }
+
+    function limparTextoBusca() {
+        document.getElementById('busca').value = '';
+        filtrarProdutos();
+        document.getElementById('busca').focus();
+    }
+
+    function calcularTotal() {
+        let total = 0, qtd = 0;
+        document.querySelectorAll('input[type="number"]').forEach(i => {
+            const v = parseFloat(i.value) || 0;
+            if(v > 0) { total += (parseFloat(i.getAttribute('data-preco')) || 0) * v; qtd++; }
+        });
+        document.getElementById('valor-total').innerText = total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        document.getElementById('qtd-itens').innerText = qtd;
+    }
+
+    function limparQuantidades() {
+        if(confirm("Zerar pedido?")) {
+            document.querySelectorAll('input[type="number"]').forEach(i => { i.value = 0; });
+            document.querySelectorAll('.produto').forEach(p => p.classList.remove('selecionado'));
+            calcularTotal();
+        }
+    }
+
+    function revisarPedido() {
+        if (!document.getElementById('cliente-nome').value) { alert("Digite seu nome!"); return; }
+        let html = "", total = 0;
+        document.querySelectorAll('input[type="number"]').forEach(i => {
+            const v = parseFloat(i.value) || 0;
+            if (v > 0) {
+                const sub = v * parseFloat(i.getAttribute('data-preco'));
+                total += sub;
+                html += `<p style="border-bottom:1px solid #eee; padding-bottom:5px;"><b>${v}${i.getAttribute('data-tipo')}</b> - ${i.getAttribute('data-nome')}</p>`;
+            }
+        });
+        if (total === 0) { alert("Pedido vazio!"); return; }
+        document.getElementById('resumo-pedido').innerHTML = html;
+        document.getElementById('resumo-total').innerText = `Total: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+        document.getElementById('modal-revisao').style.display = 'block';
+    }
+
+    function fecharModal() { document.getElementById('modal-revisao').style.display = 'none'; }
+
+    function enviarWhatsApp() {
+        const fone = document.getElementById('vendedor-selecionado').value;
+        const nome = document.getElementById('cliente-nome').value;
+        const entrega = document.getElementById('tipo-entrega').value;
+        const data = document.getElementById('data-pedido').value.split('-').reverse().join('/');
+        let msg = `*PEDIDO COLMÉIA*\n👤 Cliente: ${nome}\n📅 Data: ${data}\n🚚 Tipo: ${entrega}\n`;
+        if(entrega === "Entrega") msg += `📍 End: ${document.getElementById('cliente-endereco').value}\n`;
+        msg += `\n*ÍTENS:* \n`;
+        document.querySelectorAll('input[type="number"]').forEach(i => {
+            if (parseFloat(i.value) > 0) msg += `▪️ ${i.value}${i.getAttribute('data-tipo')} - ${i.getAttribute('data-nome')}\n`;
+        });
+        msg += `\n💰 *TOTAL: R$ ${document.getElementById('valor-total').innerText}*`;
+        window.open(`https://wa.me/${fone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+</body>
+</html>
