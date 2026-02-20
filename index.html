@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PEDIDO COLMEIA V4.9</title>
+    <title>PEDIDO COLMEIA V4.9 - BUSCA COM LIMPAR</title>
     <style>
         :root { 
             --cor-destaque: #007bff;
@@ -22,101 +22,4 @@
         h1 { text-align: center; color: var(--cor-primaria); margin-bottom: 20px; font-size: 1.5em; margin-top: 0; }
         
         .campo-dados { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #444; font-size: 0.9em; }
-
-        /* Ajuste de Inputs para iOS e Android */
-        input[type="text"], input[type="date"], select { 
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; 
-            font-size: 16px; font-family: inherit; background-color: white !important; color: #333;
-            -webkit-appearance: none; appearance: none; min-height: 48px;
-        }
-
-        .sticky-header { position: sticky; top: 0; z-index: 100; background: white; padding: 10px 0; border-bottom: 1px solid #eee; }
-        
-        /* Busca com Botão Limpar (X) */
-        .busca-wrapper { position: relative; width: 100%; margin-bottom: 8px; }
-        #busca { border: 2px solid var(--cor-destaque); background-color: #f9f9f9; padding-right: 40px; }
-        .btn-limpar-texto { 
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
-            background: #ccc; color: white; border: none; border-radius: 50%; 
-            width: 24px; height: 24px; font-size: 14px; cursor: pointer; 
-            display: none; align-items: center; justify-content: center; font-weight: bold;
-        }
-
-        .categoria-titulo { 
-            background: var(--cor-sucesso-claro); color: var(--cor-primaria); padding: 14px 15px; border-radius: 8px; 
-            margin: 15px 0 5px 0; font-weight: bold; text-transform: uppercase; font-size: 0.85em; 
-            border-left: 5px solid var(--cor-destaque); cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .categoria-titulo::after { content: '▶'; font-size: 0.8em; transition: 0.3s; transform: rotate(90deg); }
-        .categoria-titulo.fechada::after { transform: rotate(0deg); }
-        .categoria-corpo { display: block; }
-        .categoria-corpo.escondido { display: none; }
-
-        .produto { display: flex; flex-direction: column; padding: 15px 10px; border-bottom: 1px solid #eee; transition: 0.3s; border-radius: 8px; }
-        .produto.selecionado { background-color: #f0f7ff; border-left: 4px solid var(--cor-destaque); }
-        
-        /* Estados Especiais */
-        .produto.em-oferta { background-color: #fffef0; border-left: 4px solid var(--cor-oferta); }
-        .badge-oferta { background: var(--cor-oferta); color: #856404; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; font-weight: bold; }
-        .produto.em-falta { opacity: 0.6; background-color: #f9f9f9; border-left: 4px solid var(--cor-indisponivel); }
-        .badge-falta { background: var(--cor-perigo); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; font-weight: bold; }
-
-        .produto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .info { flex: 1; padding-right: 10px; }
-        .cod-prod { background: #eee; color: #666; font-size: 0.7em; padding: 2px 5px; border-radius: 4px; margin-right: 4px; }
-        .nome-prod { font-weight: bold; color: #333; display: block; margin-bottom: 4px; font-size: 1.05em;}
-        .badge-tipo { background: var(--cor-primaria); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
-        
-        .preco-principal { color: var(--cor-destaque); font-weight: bold; font-size: 1.15em; }
-        .preco-secundario { color: #777; font-size: 0.85em; display: block; margin-top: 2px; font-style: italic; }
-
-        input[type="number"] { width: 70px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 16px; font-weight: bold; color: var(--cor-primaria); background: white; -webkit-appearance: none; }
-        input[type="number"]:disabled { border-color: #ccc; background: #eee; color: #999; cursor: not-allowed; }
-
-        /* Rodapé Fixo Estilo App */
-        .rodape-fixo {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: var(--cor-primaria); padding: 15px; box-sizing: border-box; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); z-index: 1000; display: flex; flex-direction: column; gap: 10px; border-radius: 20px 20px 0 0;
-        }
-        .total-info { display: flex; justify-content: space-between; align-items: center; color: white; }
-        .total-valor { font-size: 1.4em; font-weight: bold; }
-        .btn-enviar { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 0 #0056b3; }
-        
-        #btn-topo { display: none; position: fixed; bottom: 160px; right: 20px; z-index: 99; background: var(--cor-primaria); color: white; border-radius: 50%; width: 45px; height: 45px; border: none; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
-        .modal-content { background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 450px; border-radius: 15px; max-height: 85vh; overflow-y: auto; box-sizing: border-box;}
-        
-        .btn-limpar { background-color: var(--cor-perigo); box-shadow: 0 4px 0 #b30000; padding: 10px; font-size: 0.85em; border-radius: 8px; color: white; border: none; width: 100%; font-weight: bold; margin-top: 5px;}
-        #carregando { text-align: center; color: #666; padding: 30px; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<button id="btn-topo" onclick="irAoTopo()">⬆</button>
-
-<div class="container">
-    <img src="https://i.postimg.cc/Mp43sV46/LOGO-COLMEIA.png" alt="Logo da Empresa" class="logo-empresa">
-    <h1>🛒 PEDIDO COLMÉIA</h1>
-
-    <div class="campo-dados">
-        <label>Nome do Mercado / Cliente:</label>
-        <input type="text" id="cliente-nome" placeholder="Digite seu nome...">
-    </div>
-
-    <div class="campo-dados">
-        <label>Selecione o Vendedor:</label>
-        <select id="vendedor-selecionado">
-            <option value="5516991251990">Vendedor Leandro</option>
-            <option value="5516981910138">Vendedor Marco</option>
-            <option value="5516999642784">Vendedor Gabriel</option>
-            <option value="5516997053840">Vendedor Gustavo</option>
-            <option value="5516996440327">Vendedor Marcio</option>
-            <option value="5516981910071">Vendedor Cafú</option>
-        </select>
-    </div>
-
-    <div class="campo-dados">
-        <label>Como deseja receber?</label>
-        <select id="tipo-entrega" onchange
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #444;
