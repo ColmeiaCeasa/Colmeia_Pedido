@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PEDIDO COLMEIA V4.8.2 - DATA TRAVADA</title>
+    <title>PEDIDO COLMEIA V4.9 - ESTÁVEL</title>
     <style>
         :root { 
             --cor-destaque: #007bff;
@@ -32,12 +32,13 @@
 
         .sticky-header { position: sticky; top: 0; z-index: 100; background: white; padding: 10px 0; border-bottom: 1px solid #eee; }
         
+        /* BUSCA COM BOTÃO X */
         .busca-wrapper { position: relative; width: 100%; margin-bottom: 8px; }
         #busca { border: 2px solid var(--cor-destaque); background-color: #f9f9f9; padding-right: 40px; }
         .btn-limpar-texto { 
             position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
             background: #ccc; color: white; border: none; border-radius: 50%; 
-            width: 24px; height: 24px; font-size: 14px; cursor: pointer; 
+            width: 26px; height: 26px; font-size: 14px; cursor: pointer; 
             display: none; align-items: center; justify-content: center; font-weight: bold; z-index: 10;
         }
 
@@ -60,12 +61,12 @@
         .badge-oferta { background: var(--cor-oferta); color: #856404; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
         .badge-falta { background: var(--cor-perigo); color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
 
-        input[type="number"] { width: 70px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 18px; font-weight: bold; color: var(--cor-primaria); }
+        input[type="number"] { width: 75px; padding: 10px; border-radius: 8px; border: 2px solid var(--cor-destaque); text-align: center; font-size: 18px; font-weight: bold; color: var(--cor-primaria); -webkit-appearance: none; }
 
         .rodape-fixo {
             position: fixed; bottom: 0; left: 0; width: 100%; background: var(--cor-primaria); padding: 15px; box-sizing: border-box; z-index: 1000; border-radius: 20px 20px 0 0;
         }
-        .btn-enviar-wa { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-enviar-wa { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #0056b3; }
         
         #carregando { text-align: center; color: #666; padding: 30px; font-weight: bold; background: white; border-radius: 10px; margin-top: 10px; border: 1px solid #eee; }
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
@@ -90,4 +91,55 @@
             <option value="5516981910138">Vendedor Marco</option>
             <option value="5516999642784">Vendedor Gabriel</option>
             <option value="5516997053840">Vendedor Gustavo</option>
-            <option value
+            <option value="5516996440327">Vendedor Marcio</option>
+            <option value="5516981910071">Vendedor Cafú</option>
+        </select>
+    </div>
+
+    <div class="campo-dados">
+        <label>Recebimento:</label>
+        <select id="tipo-entrega" onchange="toggleEndereco()">
+            <option value="Entrega">Receber na loja (Entrega)</option>
+            <option value="Ceasa">Retirar no Ceasa</option>
+        </select>
+    </div>
+
+    <div class="campo-dados">
+        <label>Data:</label>
+        <input type="date" id="data-pedido">
+    </div>
+
+    <div class="campo-dados" id="campo-endereco">
+        <label>Endereço de Entrega:</label>
+        <input type="text" id="cliente-endereco" placeholder="Rua, nº, bairro...">
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div class="sticky-header">
+        <div class="busca-wrapper">
+            <input type="text" id="busca" placeholder="🔎 Buscar produto..." onkeyup="filtrarProdutos()">
+            <button class="btn-limpar-texto" id="btn-x" onclick="limparTextoBusca()">✕</button>
+        </div>
+        <button onclick="limparQuantidades()" style="width:100%; background:var(--cor-perigo); color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">🧹 ZERAR QUANTIDADES</button>
+    </div>
+
+    <div id="carregando">⏳ Sincronizando produtos...</div>
+    <div id="lista-produtos"></div>
+</div>
+
+<div class="rodape-fixo">
+    <div style="display:flex; justify-content:space-between; color:white; font-weight:bold; margin-bottom:10px; padding:0 5px;">
+        <span>Itens: <span id="qtd-itens">0</span></span>
+        <span>Total: R$ <span id="valor-total">0,00</span></span>
+    </div>
+    <button class="btn-enviar-wa" onclick="revisarPedido()">🚀 REVISAR E ENVIAR</button>
+</div>
+
+<div id="modal-revisao" class="modal">
+    <div class="modal-content">
+        <h2 style="color:var(--cor-primaria); margin-top:0;">Conferir Pedido</h2>
+        <div id="resumo-pedido"></div>
+        <div id="resumo-total" style="font-weight:bold; font-size:1.2em; margin:15px 0; text-align:right; color:var(--cor-destaque);"></div>
+        <button class="btn-enviar-wa" onclick="enviarWhatsApp()">✅ ENVIAR AGORA</button>
+        <button onclick="fecharModal()" style="background:#888; color:white; border:none; padding:15px; width:10
